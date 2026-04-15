@@ -23,7 +23,8 @@ bool GameManager::makeMove(Position from, Position to) {
         // Check for simple win condition: Is a King being captured?
         if (board.getSquare(to).type == PieceType::King) {
             gameOver = true;
-            std::cout << "Checkmate! " << (currentTurn == Color::White ? "White" : "Black") << " wins!" << std::endl;
+            std::cout << "Checkmate! " << (currentTurn == Color::White ? "White" : "Black")
+                      << " wins!" << std::endl;
         }
 
         // 3. Execute Move: Update the board
