@@ -32,6 +32,8 @@ void printBoard(const Board& board) {
     std::cout << "\n";
 }
 
+void testUndo(){}
+
 int main() {
     GameManager game;
     int x1, y1, x2, y2;
@@ -48,6 +50,12 @@ int main() {
             std::cout << "Invalid input format!\n";
             std::cin.clear();
             std::cin.ignore(1000, '\n');
+            continue;
+        }
+
+        if (x1 == -1) {
+            game.undoMove();
+            std::cout <<"Move undone.\n";
             continue;
         }
 

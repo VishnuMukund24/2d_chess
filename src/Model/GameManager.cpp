@@ -17,8 +17,11 @@ bool GameManager::makeMove(Position from, Position to) {
     }
 
     // 2. Validate Rules: Is the move geometrically legal?
-    Move move = {from, to};
-    if (MoveValidator::isValidMove(board, move)) {
+    if (MoveValidator::isValidMove(board, {from, to})) {
+        Square targetSquare = board.getSquare(to);
+
+        // Record the command before changing the board
+        history.push_back(MoveCommand(from, to, piece, targetSquare));
 
         // Check for simple win condition: Is a King being captured?
         if (board.getSquare(to).type == PieceType::King) {
@@ -39,4 +42,22 @@ bool GameManager::makeMove(Position from, Position to) {
 
 void GameManager::switchTurn() {
     currentTurn = (currentTurn == Color::White) ? Color::Black : Color::White;
+}
+
+void GameManager::undoMove() {
+    if (history.empty()) return;
+
+    // Get the last move
+    MoveCommand lastMove = history.back();
+    history.pop_back();
+
+    // Reverse the board state
+    board.setSquare(lastMove.from, lastMove.movedPiece);
+    board.setSquare(lastMove.to, lastMove.capturedPiece);
+
+    // Reset game state if it was over
+    gameOver = false;
+
+    // Crucial: Switch the turn back!
+    switchTurn();
 }
