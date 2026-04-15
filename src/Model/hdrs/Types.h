@@ -28,5 +28,6 @@ struct Position {
 struct Square {
     PieceType type = PieceType::None;
     Color color    = Color::None;
+    bool hasMoved  = false; // for Castling and Pawn Double-Step
 };
 

@@ -9,9 +9,13 @@ struct MoveCommand {
     Square movedPiece;
     Square capturedPiece;
     PieceType promotedTo; // None if no promotion
+    bool isCastle;        // Flag to signal the Rook also moved (2 piece movement)
 
-    MoveCommand(Position f, Position t, Square m, Square c, PieceType p = PieceType::None)
-        : from(f), to(t), movedPiece(m), capturedPiece(c), promotedTo(p) {}
+    MoveCommand(
+        Position f, Position t, Square m, Square c,
+        PieceType p = PieceType::None, bool castle = false
+    )
+        : from(f), to(t), movedPiece(m), capturedPiece(c), promotedTo(p), isCastle(castle) {}
 };
 
 #endif

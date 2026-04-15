@@ -35,6 +35,18 @@ bool MoveValidator::isValidMove(const Board& board, Move move) {
             int dx = std::abs(move.to.x - move.from.x);
             int dy = std::abs(move.to.y - move.from.y);
 
+            if (dx == 2 && dy == 0) {
+                // Determine if it's Kingside (right) or Queenside (left)
+                int rookX   = (move.to.x > move.from.x) ? 7 : 0;
+                Square rook = board.getSquare({rookX, move.from.y});
+
+                // 1. Check if King and Rook have moved
+                if (source.hasMoved || rook.type != PieceType::Rook || rook.hasMoved) return false;
+
+                // 2. Check if path is clear
+                return isPathClear(board, {move.from, {rookX, move.from.y}});
+            }
+
             // King moves exactly 1 square in any direction (horizontal, vertical, or diagonal)
             return (dx <= 1 && dy <= 1);
         }
