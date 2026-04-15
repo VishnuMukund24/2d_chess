@@ -32,10 +32,55 @@ void printBoard(const Board& board) {
     std::cout << "\n";
 }
 
-void testUndo(){}
-
-int main() {
+void testPawnPromotion(){
+    // Testing Pawn promotion
     GameManager game;
+    Board board = game.getBoard();
+    board.setSquare({0, 6}, {PieceType::Pawn, Color::White});
+    
+}
+
+void runPromotionTest(GameManager& game) {
+    std::cout << "\n--- STARTING PROMOTION TEST ---" << std::endl;
+
+    // 1. Manually set up a "Promotion Scenario"
+    // We clear the board and place a White Pawn on the 7th rank (index 6)
+    // and a Black Pawn on the 2nd rank (index 1) for two-way testing.
+    Board& board = const_cast<Board&>(game.getBoard()); 
+    
+    // Clear a path
+    Position whitePawnStart = {4, 6}; // E7
+    Position whitePawnEnd   = {4, 7}; // E8
+    board.setSquare(whitePawnStart, {PieceType::Pawn, Color::White});
+
+    // 2. Execute the promotion move
+    std::cout << "Moving White Pawn from E7 to E8..." << std::endl;
+    if (game.makeMove(whitePawnStart, whitePawnEnd)) {
+        Square result = game.getBoard().getSquare(whitePawnEnd);
+        if (result.type == PieceType::Queen) {
+            std::cout << "SUCCESS: Pawn promoted to Queen at E8." << std::endl;
+        } else {
+            std::cout << "FAILURE: Piece at E8 is still a " << (int)result.type << std::endl;
+        }
+    } else {
+        std::cout << "ERROR: Move was rejected by GameManager!" << std::endl;
+    }
+
+    // 3. Test the Undo
+    std::cout << "Undoing promotion..." << std::endl;
+    game.undoMove();
+    
+    Square backToPawn = game.getBoard().getSquare(whitePawnStart);
+    if (backToPawn.type == PieceType::Pawn && backToPawn.color == Color::White) {
+        std::cout << "SUCCESS: Undo restored the White Pawn to E7." << std::endl;
+    } else {
+        std::cout << "FAILURE: Undo failed to restore the Pawn." << std::endl;
+    }
+    
+    std::cout << "--- PROMOTION TEST COMPLETE ---\n" << std::endl;
+}
+
+void twoDChess(GameManager& game) {
     int x1, y1, x2, y2;
     std::cout << "--- 2D C++ CHESS: CONSOLE EDITION ---\n";
     std::cout << "Enter moves as: startX startY endX endY (e.g., 0 1 0 3)\n";
@@ -69,6 +114,11 @@ int main() {
     std::cout << "Final Board State:\n";
     printBoard(game.getBoard());
     std::cout << "Thanks for playing!\n";
+}
 
+int main() {
+    GameManager game;
+    twoDChess(game);
+    // runPromotionTest(game);
     return 0;
 }

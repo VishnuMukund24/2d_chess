@@ -8,9 +8,10 @@ struct MoveCommand {
     Position to;
     Square movedPiece;
     Square capturedPiece;
+    PieceType promotedTo; // None if no promotion
 
-    MoveCommand(Position f, Position t, Square m, Square c)
-        : from(f), to(t), movedPiece(m), capturedPiece(c) {}
+    MoveCommand(Position f, Position t, Square m, Square c, PieceType p = PieceType::None)
+        : from(f), to(t), movedPiece(m), capturedPiece(c), promotedTo(p) {}
 };
 
 #endif

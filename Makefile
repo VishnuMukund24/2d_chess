@@ -8,6 +8,7 @@ OBJ  = target/chess_test
 
 # Build rule
 all:
+		mkdir -p target
 		$(CXX) $(CXXFLAGS) $(SRCS) -o $(OBJ)
 
 # Clean rule to remove the executable
