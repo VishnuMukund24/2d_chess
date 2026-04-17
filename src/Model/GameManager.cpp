@@ -51,7 +51,7 @@ bool GameManager::makeMove(Position from, Position to) {
 
         // 2. Record the Original piece (the Pawn) into history
         // Record the command before changing the board
-        history.push_back(MoveCommand(from, to, originalPiece, targetSquare, promotionType, wasCastle));
+        history.push_back(MoveCommand(from, to, originalPiece, targetSquare, originalPiece.hasMoved, promotionType, wasCastle));
 
         // Check for simple win condition: Is a King being captured?
         if (targetSquare.type == PieceType::King) {
@@ -63,6 +63,15 @@ bool GameManager::makeMove(Position from, Position to) {
         // 3. Execute Move: Update the board
         board.setSquare(to, pieceToPlace);
         board.setSquare(from, {PieceType::None, Color::None});
+        
+        // 4. Update hasMoved flag by reference to the square
+        board.getSquareRef(to).hasMoved = true;
+
+        if (wasCastle) {
+            int rookToX = (to.x > from.x) ? 5 : 3;
+            board.getSquareRef({rookToX, from.y}).hasMoved = true;
+        }
+
 
         switchTurn();
         return true;
@@ -84,6 +93,8 @@ void GameManager::undoMove() {
     // Reverse the board state (Basic)
     board.setSquare(lastMove.from, lastMove.movedPiece);
     board.setSquare(lastMove.to, lastMove.capturedPiece);
+
+    board.getSquareRef(lastMove.from).hasMoved = lastMove.movedPieceOldHasMoved;
  
     // Spectial Castling reversal
     if (lastMove.isCastle) {
@@ -94,6 +105,8 @@ void GameManager::undoMove() {
         Square rook   = board.getSquare({rookToX, lastMove.from.y});
         board.setSquare({rookFromX, lastMove.from.y}, rook);
         board.setSquare({rookToX, lastMove.from.y}, {PieceType::None, Color::None});
+
+        board.getSquareRef({rookFromX, lastMove.from.y}).hasMoved = false;
     }
     // Reset game state if it was over
     gameOver = false;

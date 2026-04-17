@@ -31,4 +31,10 @@ class Board {
 
         // Setup
         void initializeStartingPosition();
+
+        // Square reference
+        Square& getSquareRef(Position pos) {
+            Square& squareRef = grid[getIndex(pos)];
+            return squareRef;
+        }
 };

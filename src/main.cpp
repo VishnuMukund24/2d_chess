@@ -80,6 +80,66 @@ void runPromotionTest(GameManager& game) {
     std::cout << "--- PROMOTION TEST COMPLETE ---\n" << std::endl;
 }
 
+void runExhaustiveCastlingTest(GameManager& game) {
+    std::cout << "--- EXHAUSTIVE CASTLING SUITE ---\n";
+    Board& board = const_cast<Board&>(game.getBoard());
+
+    struct CastleTest {
+        std::string name;
+        Color turn;
+        Position start;
+        Position end;
+        Position rStart;
+        Position rEnd;
+        std::vector<Position> clearPath;
+    };
+
+    std::vector<CastleTest> tests = {
+        {"White Kingside", Color::White, {4, 0}, {6, 0}, {7, 0}, {5, 0}, {{5, 0}, {6, 0}}},
+        {"White Queenside", Color::White, {4, 0}, {2, 0}, {0, 0}, {3, 0}, {{1, 0}, {2, 0}, {3, 0}}},
+        {"Black Kingside", Color::Black, {4, 7}, {6, 7}, {7, 7}, {5, 7}, {{5, 7}, {6, 7}}},
+        {"Black Queenside", Color::Black, {4, 7}, {2, 7}, {0, 7}, {3, 7}, {{1, 7}, {2, 7}, {3, 7}}}
+    };
+
+    for (const auto& t : tests) {
+        std::cout << "Testing: " << t.name << "..." << std::endl;
+
+        // 1. Setup Board for this specific test
+        // Clear board first to ensure hasMoved flags are clean (fresh GameManager recommended)
+        board.initializeStartingPosition(); 
+        for (auto p : t.clearPath) board.setSquare(p, {PieceType::None, Color::None});
+        
+        // Ensure turn is correct in game manager (might need a setter or manual toggle)
+        // For this test, we assume game.makeMove will handle turn validation
+        
+        // 2. Execute Move
+        if (game.makeMove(t.start, t.end)) {
+            Square k = board.getSquare(t.end);
+            Square r = board.getSquare(t.rEnd);
+            
+            if (k.type == PieceType::King && r.type == PieceType::Rook && k.hasMoved && r.hasMoved) {
+                std::cout << "  [PASS] Movement and Flags valid.\n";
+            } else {
+                std::cout << "  [FAIL] Piece/Flag mismatch.\n";
+            }
+            printBoard(board);
+            
+            // 3. Undo
+            game.undoMove();
+            Square kOld = board.getSquare(t.start);
+            Square rOld = board.getSquare(t.rStart);
+            
+            if (kOld.type == PieceType::King && !kOld.hasMoved && rOld.type == PieceType::Rook) {
+                std::cout << "  [PASS] Undo restored state.\n";
+            } else {
+                std::cout << "  [FAIL] Undo failed.\n";
+            }
+        } else {
+            std::cout << "  [ERROR] Move rejected - check turn or MoveValidator.\n";
+        }
+    }
+}
+
 void twoDChess(GameManager& game) {
     int x1, y1, x2, y2;
     std::cout << "--- 2D C++ CHESS: CONSOLE EDITION ---\n";
@@ -118,7 +178,8 @@ void twoDChess(GameManager& game) {
 
 int main() {
     GameManager game;
-    twoDChess(game);
+    // twoDChess(game);
     // runPromotionTest(game);
+    runExhaustiveCastlingTest(game);
     return 0;
 }
