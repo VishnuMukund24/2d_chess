@@ -6,6 +6,7 @@ class Board {
     private:
         // index = row * 8 + column
         std::array<Square, 64> grid;
+        Square dummySquare;
 
     public:
         Board();
@@ -17,7 +18,7 @@ class Board {
 
         // Core data access
         Square getSquare(Position pos) const {
-            if (isOutOfBounds(pos)) return {PieceType::None, Color::None};
+            if (isOutOfBounds(pos)) return {PieceType::None, Color::None, false};
             return grid[getIndex(pos)];
         }
 
@@ -34,6 +35,10 @@ class Board {
 
         // Square reference
         Square& getSquareRef(Position pos) {
+            if (isOutOfBounds(pos)) {
+                dummySquare = {PieceType::None, Color::None, false}; // Safety sink
+                return dummySquare;
+            }
             Square& squareRef = grid[getIndex(pos)];
             return squareRef;
         }
